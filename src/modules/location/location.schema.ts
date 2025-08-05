@@ -16,6 +16,9 @@ export class Location extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'Location', default: null })
   parentId: Types.ObjectId | null;
+
+  @Prop({ type: [Types.ObjectId], default: [], index: true })
+  path: Types.ObjectId[];
 }
 
 export const LocationSchema = SchemaFactory.createForClass(Location);
