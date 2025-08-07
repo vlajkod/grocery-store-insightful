@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 export enum LocationType {
   STORE = 'STORE',
@@ -7,7 +7,10 @@ export enum LocationType {
 }
 
 @Schema({ timestamps: true })
-export class Location extends Document {
+export class Location {
+  @Prop({ index: true })
+  id: string;
+
   @Prop({ required: true })
   name: string;
 
@@ -15,10 +18,10 @@ export class Location extends Document {
   type: LocationType;
 
   @Prop({ type: Types.ObjectId, ref: 'Location', default: null })
-  parentId: Types.ObjectId | null;
+  parentId: string | null;
 
   @Prop({ type: [Types.ObjectId], default: [], index: true })
-  path: Types.ObjectId[];
+  path: string[];
 }
 
 export const LocationSchema = SchemaFactory.createForClass(Location);

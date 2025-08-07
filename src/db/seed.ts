@@ -1,4 +1,3 @@
-import { hashSync } from 'bcryptjs';
 import { connect, connection, Types } from 'mongoose';
 import { LocationSchema } from '../modules/location/location.schema';
 import { UserRole, UserSchema } from '../modules/user/user.schema';
@@ -12,17 +11,27 @@ async function addLocation(
   location: LocationTree,
   locationModel: any,
   parentId: Types.ObjectId | null = null,
+  parentPath: Types.ObjectId[] = [],
 ) {
   const { name, type, children } = location;
+  const path = [...parentPath];
   const createdLocation = await locationModel.create({
     name,
     type,
     parentId,
+    path,
+  });
+
+  await locationModel.findByIdAndUpdate(createdLocation._id, {
+    $set: { path: [...path, createdLocation._id] },
   });
 
   const createdChildren = await Promise.all(
     children.map((child: LocationTree) =>
-      addLocation(child, locationModel, createdLocation._id),
+      addLocation(child, locationModel, createdLocation._id, [
+        ...path,
+        createdLocation._id,
+      ]),
     ),
   );
 
@@ -41,11 +50,11 @@ async function seed() {
 
   await UserModel.create([
     {
-      name: 'Manager Srbija',
-      email: 'manager.srbija@example.rs',
-      password: hashSync('pass', 10),
+      name: 'Manager Serbia',
+      email: 'manager.serbia@example.rs',
+      password: 'Pass123!',
       role: UserRole.MANAGER,
-      location: root.location._id,
+      locationId: root.location._id,
     },
   ]);
 

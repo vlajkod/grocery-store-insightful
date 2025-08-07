@@ -1,5 +1,6 @@
 import { Controller, Get, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/decorators/public.decorator';
 import { HealthResponseDTO } from './dto/health-response.dto';
 
 @ApiTags('Health')
@@ -11,6 +12,7 @@ export class HealthController {
     description: 'Application is healthy.',
     type: HealthResponseDTO,
   })
+  @Public()
   @Get()
   getHealth(): HealthResponseDTO {
     return {

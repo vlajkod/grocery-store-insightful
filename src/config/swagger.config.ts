@@ -1,5 +1,9 @@
 import { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+  SwaggerModule,
+} from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
@@ -12,7 +16,7 @@ export function setupSwagger(app: INestApplication): void {
         type: 'http',
         in: 'Header',
       },
-      'access-token'
+      'access-token',
     )
     .setTitle('Grocery Store API')
     .setDescription('API documentation for Grocery Store')

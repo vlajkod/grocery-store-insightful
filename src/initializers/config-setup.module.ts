@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigFactory, ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import appConfig from 'src/config/app.config';
+import authConfig from 'src/config/auth.config';
 import dbConfig from 'src/config/db.config';
 
-const configs: Array<ConfigFactory> = [appConfig, dbConfig];
+const configs: Array<ConfigFactory> = [appConfig, dbConfig, authConfig];
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ const configs: Array<ConfigFactory> = [appConfig, dbConfig];
           .default(
             'mongodb://root:example@localhost:27017/grocery-store?authSource=admin',
           ),
+        // AUTH
+        AUTH_SECRET: Joi.string().required(),
       }),
     }),
   ],
