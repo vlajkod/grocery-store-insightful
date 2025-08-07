@@ -1,4 +1,4 @@
-import { connect, connection, Types } from 'mongoose';
+import { connect, connection, Model, Types } from 'mongoose';
 import { LocationSchema } from '../modules/location/location.schema';
 import { UserRole, UserSchema } from '../modules/user/user.schema';
 import { locations, LocationTree } from './location-tree';
@@ -9,7 +9,7 @@ const MONGO_URI =
 
 async function addLocation(
   location: LocationTree,
-  locationModel: any,
+  locationModel: Model<Location>,
   parentId: Types.ObjectId | null = null,
   parentPath: Types.ObjectId[] = [],
 ) {
@@ -27,11 +27,12 @@ async function addLocation(
   });
 
   const createdChildren = await Promise.all(
-    children.map((child: LocationTree) =>
-      addLocation(child, locationModel, createdLocation._id, [
-        ...path,
-        createdLocation._id,
-      ]),
+    children.map(
+      (child: LocationTree): Promise<{ location: Location; children: any[] }> =>
+        addLocation(child, locationModel, createdLocation._id, [
+          ...path,
+          createdLocation._id,
+        ]),
     ),
   );
 
@@ -46,7 +47,10 @@ async function seed() {
   await LocationModel.deleteMany({});
   await UserModel.deleteMany({});
 
-  const root = await addLocation(locations, LocationModel);
+  const root = await addLocation(
+    locations,
+    LocationModel as unknown as Model<Location>,
+  );
 
   await UserModel.create([
     {

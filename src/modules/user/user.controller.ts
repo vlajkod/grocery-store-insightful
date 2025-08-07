@@ -56,8 +56,7 @@ export class UserController {
     @Param() params: IdParamDto,
     @Body() user: UserUpdateDto,
   ): Promise<UserResDto> {
-    const updated = await this.userService.update(currentUser, params.id, user);
-    return new UserResDto(updated);
+    return await this.userService.update(currentUser, params.id, user);
   }
 
   @ApiBearerAuth('access-token')

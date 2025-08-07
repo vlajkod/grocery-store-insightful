@@ -7,6 +7,14 @@ export enum UserRole {
   MANAGER = 'MANAGER',
 }
 
+export interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  locationId: string;
+}
+
 @Schema({ timestamps: true })
 export class User {
   @Prop({ index: true })

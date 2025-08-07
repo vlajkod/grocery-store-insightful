@@ -23,12 +23,4 @@ export class UserResDto {
   @ApiProperty({ example: '68933bad810af7aff96b6255' })
   @IsMongoId()
   locationId: string;
-
-  constructor({ id, name, email, role, locationId }) {
-    this.email = email;
-    this.id = id;
-    this.locationId = locationId;
-    this.name = name;
-    this.role = role;
-  }
 }
