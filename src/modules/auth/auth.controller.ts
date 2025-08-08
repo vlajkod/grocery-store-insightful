@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from 'src/decorators/public.decorator';
 import { AuthLoginService } from './auth-login.service';
 import { LogInReqDto } from './dtos/login-req.dto';
@@ -9,6 +9,7 @@ import { LoginResDto } from './dtos/login-res.dto';
 export class AuthController {
   constructor(private readonly authLoginService: AuthLoginService) {}
 
+  @ApiOperation({ summary: 'Logs in a user.' })
   @ApiResponse({ status: HttpStatus.OK, type: LoginResDto })
   @Public()
   @HttpCode(HttpStatus.OK)

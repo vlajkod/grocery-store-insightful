@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsISO8601, IsString } from 'class-validator';
 
-export class HealthResponseDTO {
+export class HealthResponseDto {
   @ApiProperty({
     description: 'Current status of the application',
     example: 'OK',

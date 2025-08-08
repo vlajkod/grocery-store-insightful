@@ -10,18 +10,18 @@ import {
 import { UserRole } from '../user.schema';
 
 export class UserUpdateDto {
-  @ApiPropertyOptional({ example: 'Menager Srbija' })
+  @ApiPropertyOptional({ example: 'Manager Serbia' })
   @IsString()
   @IsOptional()
   name?: string;
 
-  @ApiPropertyOptional({ example: 'menager.srbija@example.rs' })
+  @ApiPropertyOptional({ example: 'manager.serbia@example.rs' })
   @IsEmail()
   @IsString()
   @IsOptional()
   email?: string;
 
-  @ApiPropertyOptional({ example: 'Pass123' })
+  @ApiPropertyOptional({ example: 'Pass123!' })
   @IsString()
   @IsStrongPassword()
   @IsOptional()

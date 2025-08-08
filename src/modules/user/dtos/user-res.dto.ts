@@ -7,11 +7,11 @@ export class UserResDto {
   @ApiProperty({ example: '68933bad810af7aff96b6255' })
   id: string;
 
-  @ApiProperty({ example: 'Menager Srbija' })
+  @ApiProperty({ example: 'Manager Serbia' })
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'menager.srbija@example.rs' })
+  @ApiProperty({ example: 'manager.serbia@example.rs' })
   @IsEmail()
   @IsString()
   email: string;

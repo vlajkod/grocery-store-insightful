@@ -8,18 +8,16 @@ import {
 } from 'class-validator';
 import { UserRole } from '../user.schema';
 
-export class UserReqDto {
-  @ApiProperty({ example: 'Menager Srbija' })
+export class UserCreateDto {
+  @ApiProperty({ example: 'Manager Serbia' })
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'menager.srbija@example.rs' })
+  @ApiProperty({ example: 'manager.srbija@example.rs' })
   @IsEmail()
-  @IsString()
   email: string;
 
-  @ApiProperty({ example: 'Pass123' })
-  @IsString()
+  @ApiProperty({ example: 'Pass123!' })
   @IsStrongPassword()
   password: string;
 

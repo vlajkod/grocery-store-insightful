@@ -7,15 +7,9 @@ export enum UserRole {
   MANAGER = 'MANAGER',
 }
 
-export interface IUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  locationId: string;
-}
-
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+})
 export class User {
   @Prop({ index: true })
   id: string;
@@ -35,36 +29,25 @@ export class User {
   @Prop({ type: Types.ObjectId, ref: 'Location', required: true, index: true })
   locationId: string;
 
-  constructor(user: Partial<User>) {
-    Object.assign(this, user);
+  constructor(
+    user: Pick<
+      User & { _id: Types.ObjectId },
+      'email' | 'name' | 'role' | 'locationId' | '_id'
+    >,
+  ) {
+    this.email = user.email;
+    this.name = user.name;
+    this.role = user.role;
+    this.locationId = user.locationId.toString();
+    this.id = user._id.toString();
   }
 
   hashPassword() {
     this.password = hashSync(this.password);
   }
-
-  toDto() {
-    return {
-      id: this.id,
-      name: this.name,
-      email: this.email,
-      role: this.role,
-      locationId: this.locationId,
-    };
-  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-UserSchema.methods.toDto = function () {
-  return {
-    id: this._id,
-    name: this.name,
-    email: this.email,
-    role: this.role,
-    locationId: this.locationId,
-  };
-};
 
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
