@@ -16,17 +16,7 @@ export class CreateUserService {
   ) {}
 
   async execute(currentUser: CurrentUser, user: UserType): Promise<User> {
-    const descendantLocations =
-      await this.descendantLocationsFinderService.execute(
-        currentUser.locationId,
-      );
-
-    if (!descendantLocations.includes(user.locationId)) {
-      throw new AppException(
-        ErrorCode.LOCATION_NOT_FOUND,
-        `This location id: ${user.locationId} does not exist in your location hierarchy.`,
-      );
-    }
+    await this.checkUserLocation(currentUser.locationId, user.locationId);
 
     const userExists = await this.userModel.findOne({ email: user.email });
     if (userExists) {
@@ -42,5 +32,22 @@ export class CreateUserService {
     });
     await createdUser.save();
     return new User(createdUser);
+  }
+
+  private async checkUserLocation(
+    currentUserLocationId: string,
+    locationId: string,
+  ) {
+    const descendantLocations =
+      await this.descendantLocationsFinderService.execute(
+        currentUserLocationId,
+      );
+
+    if (!descendantLocations.includes(locationId)) {
+      throw new AppException(
+        ErrorCode.LOCATION_NOT_FOUND,
+        `This location id: ${locationId} does not exist in your location hierarchy.`,
+      );
+    }
   }
 }

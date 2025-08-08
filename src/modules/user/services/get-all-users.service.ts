@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, RootFilterQuery, Types } from 'mongoose';
 import { DescendantLocationsFinderService } from '../../location/descendant-locations-finder.service';
 import { PaginateResDto } from '../dtos/paginate.dto';
 import { User, UserRole } from '../user.schema';
 import { CurrentUser } from '../user.types';
 
-interface Filter {
-  locationId: any;
-  role?: UserRole;
-}
 @Injectable()
 export class GetAllUsersService {
   constructor(
@@ -27,7 +23,7 @@ export class GetAllUsersService {
         currentUser.locationId,
       );
 
-    const filter: Filter = {
+    const filter: RootFilterQuery<User> = {
       locationId: {
         $in: descendantLocations.map((id) => new Types.ObjectId(id)),
       },

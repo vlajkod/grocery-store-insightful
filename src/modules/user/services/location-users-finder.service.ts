@@ -66,7 +66,7 @@ export class LocationUsersFinderService {
     if (!descendantLocations.includes(locationId)) {
       throw new AppException(
         ErrorCode.LOCATION_NOT_FOUND,
-        `Location with id: ${locationId} not found in your location hierarchy.`,
+        `This location id: ${locationId} does not exist in your location hierarchy.`,
       );
     }
   }

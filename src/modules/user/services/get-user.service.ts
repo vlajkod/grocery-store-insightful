@@ -29,18 +29,28 @@ export class GetUserService {
       );
     }
 
-    const descendantLocations =
-      await this.descendantLocationsFinderService.execute(
-        currentUser.locationId,
-      );
-
-    if (!descendantLocations.includes(userExists.locationId.toString())) {
-      throw new AppException(
-        ErrorCode.USER_HAS_NO_ACCESS,
-        'This user is not in your location hierarchy.',
-      );
-    }
+    await this.checkUserLocation(
+      currentUser.locationId,
+      userExists.locationId.toString(),
+    );
 
     return new User(userExists);
+  }
+
+  private async checkUserLocation(
+    currentUserLocationId: string,
+    locationId: string,
+  ) {
+    const descendantLocations =
+      await this.descendantLocationsFinderService.execute(
+        currentUserLocationId,
+      );
+
+    if (!descendantLocations.includes(locationId)) {
+      throw new AppException(
+        ErrorCode.USER_HAS_NO_ACCESS,
+        'You do not have permission to access this user.',
+      );
+    }
   }
 }

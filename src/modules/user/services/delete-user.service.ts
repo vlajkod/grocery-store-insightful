@@ -24,25 +24,34 @@ export class DeleteUserService {
       );
     }
 
-    const user = await this.userModel.findById(id);
-
-    if (!user) {
+    const userExists = await this.userModel.findById(id).exec();
+    if (!userExists) {
       throw new AppException(ErrorCode.USER_NOT_FOUND, 'User does not exist.');
     }
 
+    await this.checkUserLocation(
+      currentUser.locationId,
+      userExists.locationId.toString(),
+    );
+
+    await userExists.deleteOne().lean();
+    return { deleted: true };
+  }
+
+  private async checkUserLocation(
+    currentUserLocationId: string,
+    locationId: string,
+  ) {
     const descendantLocations =
       await this.descendantLocationsFinderService.execute(
-        currentUser.locationId,
+        currentUserLocationId,
       );
 
-    if (!descendantLocations.includes(user.locationId.toString())) {
+    if (!descendantLocations.includes(locationId)) {
       throw new AppException(
         ErrorCode.USER_HAS_NO_ACCESS,
         'You cannot delete this user. This user is not in your location hierarchy.',
       );
     }
-
-    await user.deleteOne();
-    return { deleted: true };
   }
 }
