@@ -100,15 +100,46 @@ describe('UpdateUserService', () => {
       expect(mockFindOne).toHaveBeenCalledWith({ email: user.email });
     });
 
-    it('if there is location in request object, throw an error if location is not in descendants location of the current user', async () => {
+    it('if the location of existing user is not in the descendant locations of the current user, throw an error', async () => {
       const userId = faker.database.mongodbObjectId();
       const user = new User(mongoUserStub);
-
+      user.locationId = faker.database.mongodbObjectId();
       const mockLean = jest.fn(() => mongoUserStub);
       const mockFindById = jest.fn((): any => ({ lean: mockLean }));
       jest.spyOn(userModel, 'findById').mockImplementationOnce(mockFindById);
 
       const mockDescendantLocationsFinder = jest.fn((): any => []);
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocationsFinder);
+
+      const mockEmailLean = jest.fn(() => null);
+      const mockFindOne = jest.fn((): any => ({ lean: mockEmailLean }));
+      jest.spyOn(userModel, 'findOne').mockImplementationOnce(mockFindOne);
+
+      const mockFindByIdAndUpdate = jest.fn((): any => ({
+        lean: jest.fn(() => mongoUserStub),
+      }));
+      jest.spyOn(userModel, 'findByIdAndUpdate').mockImplementationOnce(mockFindByIdAndUpdate);
+
+      await expect(updateUserService.execute(currentUserStub, userId, user)).rejects.toThrow(
+        new AppException(
+          ErrorCode.USER_HAS_NO_ACCESS,
+          `You do not have access to this user. Only users from your location hierarchy can be updated.`,
+        ),
+      );
+
+      expect(mockFindOne).not.toHaveBeenCalledWith({ email: user.email });
+      expect(mockDescendantLocationsFinder).toHaveBeenCalledWith(currentUserStub.locationId);
+    });
+
+    it('if there is location in request object, throw an error if location is not in descendants location of the current user', async () => {
+      const userId = faker.database.mongodbObjectId();
+      const user = new User(mongoUserStub);
+      user.locationId = faker.database.mongodbObjectId();
+      const mockLean = jest.fn(() => mongoUserStub);
+      const mockFindById = jest.fn((): any => ({ lean: mockLean }));
+      jest.spyOn(userModel, 'findById').mockImplementationOnce(mockFindById);
+
+      const mockDescendantLocationsFinder = jest.fn((): any => [mongoUserStub.locationId.toString()]);
       jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocationsFinder);
 
       const mockEmailLean = jest.fn(() => null);
