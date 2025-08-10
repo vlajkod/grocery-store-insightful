@@ -13,7 +13,7 @@ export class GetAllUsersService {
     private readonly descendantLocationsFinderService: DescendantLocationsFinderService,
   ) {}
 
-  async execute(currentUser: CurrentUser, page = 1, limit = 10): Promise<PaginateResDto<User>> {
+  async execute(currentUser: CurrentUser, page = 1, limit = 100): Promise<PaginateResDto<User>> {
     const descendantLocations = await this.descendantLocationsFinderService.execute(currentUser.locationId);
 
     const filter: RootFilterQuery<User> = {

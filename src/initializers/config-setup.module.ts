@@ -17,16 +17,10 @@ const configs: Array<ConfigFactory> = [appConfig, dbConfig, authConfig];
       expandVariables: true,
       validationSchema: Joi.object({
         // COMMON
-        NODE_ENV: Joi.string()
-          .valid('production', 'development', 'staging')
-          .default('development'),
+        NODE_ENV: Joi.string().valid('production', 'development', 'staging').default('development'),
         PORT: Joi.number().valid(3000, 8080).default(3000),
         // DATABASE
-        MONGO_URI: Joi.string()
-          .uri()
-          .default(
-            'mongodb://root:example@localhost:27017/grocery-store?authSource=admin',
-          ),
+        MONGO_URI: Joi.string().uri().default('mongodb://root:example@localhost:27017/grocery-store?authSource=admin'),
         // AUTH
         AUTH_SECRET: Joi.string().required(),
       }),

@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { AppException, ErrorCode } from '../../../src/app.exception';
-import { DescendantLocationCheckerService } from '../../../src/modules/location/descendant-location-checker.service';
+import { DescendantLocationsFinderService } from '../../../src/modules/location/descendant-locations-finder.service';
 import { Location } from '../../../src/modules/location/location.schema';
 import { DeleteUserService } from '../../../src/modules/user/services/delete-user.service';
 import { User } from '../../../src/modules/user/user.schema';
@@ -10,14 +10,14 @@ import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from './
 
 describe('DeleteUserService', () => {
   let deleteUserService: DeleteUserService;
-  let descendantLocationCheckerService: DescendantLocationCheckerService;
+  let descendantLocationsFinderService: DescendantLocationsFinderService;
   let userModel: UserModel;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         DeleteUserService,
-        DescendantLocationCheckerService,
+        DescendantLocationsFinderService,
         {
           provide: getModelToken(User.name),
           useClass: UserModel,
@@ -31,7 +31,7 @@ describe('DeleteUserService', () => {
 
     deleteUserService = moduleRef.get(DeleteUserService);
 
-    descendantLocationCheckerService = moduleRef.get(DescendantLocationCheckerService);
+    descendantLocationsFinderService = moduleRef.get(DescendantLocationsFinderService);
     userModel = moduleRef.get<UserModel>(getModelToken(User.name));
   });
 
@@ -46,14 +46,14 @@ describe('DeleteUserService', () => {
       const mockFindById = jest.fn((): any => ({ exec: mockLean, lean: mockLean }));
       jest.spyOn(userModel, 'findById').mockImplementationOnce(mockFindById);
 
-      const mockDescendantLocationCheck = jest.fn((): any => false);
-      jest.spyOn(descendantLocationCheckerService, 'execute').mockImplementationOnce(mockDescendantLocationCheck);
+      const mockDescendantLocations = jest.fn((): any => []);
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocations);
 
       await expect(() => deleteUserService.execute(currentUserStub, currentUserStub.id)).rejects.toThrow(
         new AppException(ErrorCode.USER_HAS_NO_ACCESS, 'You cannot delete your own account.'),
       );
       expect(mockFindById).not.toHaveBeenCalled();
-      expect(mockDescendantLocationCheck).not.toHaveBeenCalled();
+      expect(mockDescendantLocations).not.toHaveBeenCalled();
     });
 
     it('If there is no user, throw an error', async () => {
@@ -63,14 +63,14 @@ describe('DeleteUserService', () => {
       const mockFindById = jest.fn((): any => ({ exec: mockLean }));
       jest.spyOn(userModel, 'findById').mockImplementationOnce(mockFindById);
 
-      const mockDescendantLocationCheck = jest.fn((): any => false);
-      jest.spyOn(descendantLocationCheckerService, 'execute').mockImplementationOnce(mockDescendantLocationCheck);
+      const mockDescendantLocations = jest.fn((): any => []);
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocations);
 
       await expect(() => deleteUserService.execute(currentUserStub, userId)).rejects.toThrow(
         new AppException(ErrorCode.USER_NOT_FOUND, 'User does not exist.'),
       );
       expect(mockFindById).toHaveBeenCalledWith(userId);
-      expect(mockDescendantLocationCheck).not.toHaveBeenCalled();
+      expect(mockDescendantLocations).not.toHaveBeenCalled();
     });
 
     it('If there is no user in location hierarchy of the current user, throw an error', async () => {
@@ -79,14 +79,14 @@ describe('DeleteUserService', () => {
       const mockFindById = jest.fn((): any => ({ exec: mockLean }));
       jest.spyOn(userModel, 'findById').mockImplementationOnce(mockFindById);
 
-      const mockDescendantLocationCheck = jest.fn((): any => false);
-      jest.spyOn(descendantLocationCheckerService, 'execute').mockImplementationOnce(mockDescendantLocationCheck);
+      const mockDescendantLocations = jest.fn((): any => []);
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocations);
 
       await expect(() => deleteUserService.execute(currentUserStub, id)).rejects.toThrow(
         new AppException(ErrorCode.USER_HAS_NO_ACCESS, 'You cannot delete this user. This user is not in your location hierarchy.'),
       );
       expect(mockFindById).toHaveBeenCalledWith(id);
-      expect(mockDescendantLocationCheck).toHaveBeenCalledWith(currentUserStub.locationId, mongoUserStub.locationId);
+      expect(mockDescendantLocations).toHaveBeenCalledWith(currentUserStub.locationId);
     });
 
     it('User has been deleted from the db', async () => {
@@ -98,12 +98,12 @@ describe('DeleteUserService', () => {
       const mockFindById = jest.fn((): any => ({ exec: mockExec }));
       jest.spyOn(userModel, 'findById').mockImplementationOnce(mockFindById);
 
-      const mockDescendantLocationCheck = jest.fn((): any => true);
-      jest.spyOn(descendantLocationCheckerService, 'execute').mockImplementationOnce(mockDescendantLocationCheck);
+      const mockDescendantLocations = jest.fn((): any => [mockUser.locationId]);
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocations);
 
       const result = await deleteUserService.execute(currentUserStub, userId);
       expect(mockFindById).toHaveBeenCalledWith(userId);
-      expect(mockDescendantLocationCheck).toHaveBeenCalledWith(currentUserStub.locationId, mockUser.locationId);
+      expect(mockDescendantLocations).toHaveBeenCalledWith(currentUserStub.locationId);
       expect(mockDeleteOne).toHaveBeenCalled();
       expect(mockLean).toHaveBeenCalled();
       expect(result.deleted).toBeTruthy();

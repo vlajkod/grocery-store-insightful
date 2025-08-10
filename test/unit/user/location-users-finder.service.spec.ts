@@ -3,19 +3,19 @@ import { Test } from '@nestjs/testing';
 import { Types } from 'mongoose';
 import { DescendantLocationsFinderService } from '../../../src/modules/location/descendant-locations-finder.service';
 import { Location } from '../../../src/modules/location/location.schema';
-import { GetAllUsersService } from '../../../src/modules/user/services/get-all-users.service';
+import { LocationUsersFinderService } from '../../../src/modules/user/services/location-users-finder.service';
 import { User, UserRole } from '../../../src/modules/user/user.schema';
 import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from './utils';
 
-describe('GetAllUsersService', () => {
-  let getAllUsersService: GetAllUsersService;
+describe('LocationUsersFinderService', () => {
+  let locationUsersFinderService: LocationUsersFinderService;
   let descendantLocationsFinderService: DescendantLocationsFinderService;
   let userModel: UserModel;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
-        GetAllUsersService,
+        LocationUsersFinderService,
         DescendantLocationsFinderService,
         {
           provide: getModelToken(User.name),
@@ -28,14 +28,18 @@ describe('GetAllUsersService', () => {
       ],
     }).compile();
 
-    getAllUsersService = moduleRef.get(GetAllUsersService);
+    locationUsersFinderService = moduleRef.get(LocationUsersFinderService);
 
     descendantLocationsFinderService = moduleRef.get(DescendantLocationsFinderService);
     userModel = moduleRef.get<UserModel>(getModelToken(User.name));
   });
 
   describe('execute', () => {
-    it('if the logged in user is manager, should return list of the all users', async () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.resetAllMocks();
+    });
+    it('should return a list of managers for one location', async () => {
       const users = [mongoUserStub, mongoUserStub, mongoUserStub, mongoUserStub];
       const mockLean = jest.fn(() => users);
       const mockLimit = jest.fn((): any => ({ lean: mockLean }));
@@ -46,10 +50,18 @@ describe('GetAllUsersService', () => {
         lean: () => users.length,
       }));
       const locations = [mongoUserStub.locationId, currentUserStub.locationId];
-      jest.spyOn(descendantLocationsFinderService, 'execute').mockResolvedValueOnce(locations);
+      const mockDescendantLocationsFinder = jest.fn((): any => locations);
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocationsFinder);
       const page = 1;
       const limit = 100;
-      const data = await getAllUsersService.execute(currentUserStub, page, limit);
+      const data = await locationUsersFinderService.execute(
+        currentUserStub,
+        mongoUserStub.locationId,
+        UserRole.MANAGER,
+        page,
+        limit,
+        false,
+      );
       expect(data).toEqual({
         items: users.map((user) => new User(user)),
         total: users.length,
@@ -57,13 +69,18 @@ describe('GetAllUsersService', () => {
         limit,
         pageCount: 1,
       });
-      expect(mockFind).toHaveBeenCalledWith({ locationId: { $in: locations.map((locationId) => new Types.ObjectId(locationId)) } });
+      const filter = {
+        locationId: new Types.ObjectId(mongoUserStub.locationId),
+        role: UserRole.MANAGER,
+      };
+      expect(mockDescendantLocationsFinder).toHaveBeenCalledWith(currentUserStub.locationId);
+      expect(mockFind).toHaveBeenCalledWith(filter);
       const skip = (page - 1) * limit;
       expect(mockSkip).toHaveBeenCalledWith(skip);
       expect(mockLimit).toHaveBeenCalledWith(limit);
     });
 
-    it('if the logged in user is employee, should return list of the employees only', async () => {
+    it('should return a list of managers for one location and their descendants', async () => {
       const users = [mongoUserStub, mongoUserStub, mongoUserStub, mongoUserStub];
       const mockLean = jest.fn(() => users);
       const mockLimit = jest.fn((): any => ({ lean: mockLean }));
@@ -75,10 +92,12 @@ describe('GetAllUsersService', () => {
       }));
       const locations = [mongoUserStub.locationId, currentUserStub.locationId];
       jest.spyOn(descendantLocationsFinderService, 'execute').mockResolvedValueOnce(locations);
+
+      const mockDescendantLocationsFinder = jest.fn((): any => locations);
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementationOnce(mockDescendantLocationsFinder);
       const page = 1;
       const limit = 100;
-      const currentUser = { ...currentUserStub, role: UserRole.EMPLOYEE };
-      const data = await getAllUsersService.execute(currentUser, page, limit);
+      const data = await locationUsersFinderService.execute(currentUserStub, mongoUserStub.locationId, UserRole.MANAGER, page, limit, true);
       expect(data).toEqual({
         items: users.map((user) => new User(user)),
         total: users.length,
@@ -86,10 +105,14 @@ describe('GetAllUsersService', () => {
         limit,
         pageCount: 1,
       });
-      expect(mockFind).toHaveBeenCalledWith({
-        locationId: { $in: locations.map((locationId) => new Types.ObjectId(locationId)) },
-        role: UserRole.EMPLOYEE,
-      });
+      const filter = {
+        locationId: {
+          $in: locations.map((locationId) => new Types.ObjectId(locationId)),
+        },
+        role: UserRole.MANAGER,
+      };
+      expect(mockDescendantLocationsFinder).toHaveBeenCalled();
+      expect(mockFind).toHaveBeenCalledWith(filter);
       const skip = (page - 1) * limit;
       expect(mockSkip).toHaveBeenCalledWith(skip);
       expect(mockLimit).toHaveBeenCalledWith(limit);

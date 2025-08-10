@@ -21,9 +21,7 @@ export const locations: LocationTree = {
             {
               name: 'Subotica',
               type: LocationType.OFFICE,
-              children: [
-                { name: 'Radnja 1', type: LocationType.STORE, children: [] },
-              ],
+              children: [{ name: 'Radnja 1', type: LocationType.STORE, children: [] }],
             },
           ],
         },
@@ -84,9 +82,7 @@ export const locations: LocationTree = {
             {
               name: 'Bezanija',
               type: LocationType.STORE,
-              children: [
-                { name: 'Radnja 6', type: LocationType.STORE, children: [] },
-              ],
+              children: [{ name: 'Radnja 6', type: LocationType.STORE, children: [] }],
             },
           ],
         },
@@ -97,9 +93,7 @@ export const locations: LocationTree = {
             {
               name: 'Neimar',
               type: LocationType.OFFICE,
-              children: [
-                { name: 'Radnja 7', type: LocationType.STORE, children: [] },
-              ],
+              children: [{ name: 'Radnja 7', type: LocationType.STORE, children: [] }],
             },
             {
               name: 'Crveni Krst',

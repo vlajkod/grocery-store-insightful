@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AppException, ErrorCode } from '../../../app.exception';
-import { DescendantLocationCheckerService } from '../../location/descendant-location-checker.service';
+import { DescendantLocationsFinderService } from '../../location/descendant-locations-finder.service';
 import { User } from '../user.schema';
 import { CurrentUser } from '../user.types';
 
@@ -10,7 +10,7 @@ import { CurrentUser } from '../user.types';
 export class DeleteUserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    private readonly descendantLocationCheckerService: DescendantLocationCheckerService,
+    private readonly descendantLocationsFinderService: DescendantLocationsFinderService,
   ) {}
 
   async execute(currentUser: CurrentUser, id: string): Promise<{ deleted: boolean }> {
@@ -23,15 +23,17 @@ export class DeleteUserService {
       throw new AppException(ErrorCode.USER_NOT_FOUND, 'User does not exist.');
     }
 
-    const inLocationHierarchy = await this.descendantLocationCheckerService.execute(
-      currentUser.locationId,
-      userExists.locationId.toString(),
-    );
-    if (!inLocationHierarchy) {
-      throw new AppException(ErrorCode.USER_HAS_NO_ACCESS, 'You cannot delete this user. This user is not in your location hierarchy.');
-    }
+    await this.checkUserLocation(currentUser.locationId, userExists.locationId.toString());
 
     await userExists.deleteOne().lean();
     return { deleted: true };
+  }
+
+  private async checkUserLocation(currentUserLocationId: string, locationId: string) {
+    const descendantLocations = await this.descendantLocationsFinderService.execute(currentUserLocationId);
+
+    if (!descendantLocations.includes(locationId)) {
+      throw new AppException(ErrorCode.USER_HAS_NO_ACCESS, 'You cannot delete this user. This user is not in your location hierarchy.');
+    }
   }
 }

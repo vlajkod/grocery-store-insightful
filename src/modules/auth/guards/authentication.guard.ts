@@ -19,10 +19,7 @@ export class AuthenticationGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
 
     if (isPublic) {
       return true;
@@ -32,23 +29,14 @@ export class AuthenticationGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new AppException(
-        ErrorCode.USER_NOT_FOUND,
-        'Token not found. User not authenticated.',
-      );
+      throw new AppException(ErrorCode.USER_NOT_FOUND, 'Token not found. User not authenticated.');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<{ sub: string }>(
-        token,
-        {
-          secret: this.configService.get('auth.secret'),
-        },
-      );
-      const userInfo = await this.userModel
-        .findById(payload.sub)
-        .select(['role', 'locationId'])
-        .lean();
+      const payload = await this.jwtService.verifyAsync<{ sub: string }>(token, {
+        secret: this.configService.get('auth.secret'),
+      });
+      const userInfo = await this.userModel.findById(payload.sub).select(['role', 'locationId']).lean();
       request['user'] = { id: payload.sub, ...userInfo };
     } catch {
       throw new AppException(ErrorCode.USER_NOT_FOUND, 'Invalid token.');

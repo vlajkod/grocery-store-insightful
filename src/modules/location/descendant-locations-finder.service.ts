@@ -5,9 +5,7 @@ import { Location } from '../location/location.schema';
 
 @Injectable()
 export class DescendantLocationsFinderService {
-  constructor(
-    @InjectModel(Location.name) private readonly locationModel: Model<Location>,
-  ) {}
+  constructor(@InjectModel(Location.name) private readonly locationModel: Model<Location>) {}
 
   async execute(locationId: string) {
     const locations = await this.locationModel

@@ -1,17 +1,5 @@
-import {
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Query,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { GetUser } from '../../../decorators/get-user.decorator';
 import { Roles } from '../../../decorators/roles.decorator';
@@ -28,9 +16,7 @@ import { CurrentUser } from '../user.types';
 @ApiTags('Managers And Employees Locations Lookup')
 @Controller('user')
 export class UserLocationController {
-  constructor(
-    private readonly locationUsersFinderService: LocationUsersFinderService,
-  ) {}
+  constructor(private readonly locationUsersFinderService: LocationUsersFinderService) {}
 
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get all managers by location id.' })
@@ -43,13 +29,7 @@ export class UserLocationController {
     @Param() params: LocationIdDto,
     @Query() query: PaginateReqDto,
   ): Promise<PaginateResDto<UserResDto>> {
-    return this.locationUsersFinderService.execute(
-      currentUser,
-      params.locationId,
-      UserRole.MANAGER,
-      query.page,
-      query.limit,
-    );
+    return this.locationUsersFinderService.execute(currentUser, params.locationId, UserRole.MANAGER, query.page, query.limit);
   }
 
   @ApiBearerAuth('access-token')
@@ -65,14 +45,7 @@ export class UserLocationController {
     @Param() params: LocationIdDto,
     @Query() query: PaginateReqDto,
   ): Promise<PaginateResDto<UserResDto>> {
-    return this.locationUsersFinderService.execute(
-      currentUser,
-      params.locationId,
-      UserRole.MANAGER,
-      query.page,
-      query.limit,
-      true,
-    );
+    return this.locationUsersFinderService.execute(currentUser, params.locationId, UserRole.MANAGER, query.page, query.limit, true);
   }
 
   @ApiBearerAuth('access-token')
@@ -86,13 +59,7 @@ export class UserLocationController {
     @Param() params: LocationIdDto,
     @Query() query: PaginateReqDto,
   ): Promise<PaginateResDto<UserResDto>> {
-    return this.locationUsersFinderService.execute(
-      currentUser,
-      params.locationId,
-      UserRole.EMPLOYEE,
-      query.page,
-      query.limit,
-    );
+    return this.locationUsersFinderService.execute(currentUser, params.locationId, UserRole.EMPLOYEE, query.page, query.limit);
   }
 
   @ApiBearerAuth('access-token')
@@ -108,13 +75,6 @@ export class UserLocationController {
     @Param() params: LocationIdDto,
     @Query() query: PaginateReqDto,
   ): Promise<PaginateResDto<UserResDto>> {
-    return this.locationUsersFinderService.execute(
-      currentUser,
-      params.locationId,
-      UserRole.EMPLOYEE,
-      query.page,
-      query.limit,
-      true,
-    );
+    return this.locationUsersFinderService.execute(currentUser, params.locationId, UserRole.EMPLOYEE, query.page, query.limit, true);
   }
 }

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { hash } from 'bcryptjs';
 import { Model } from 'mongoose';
 import { AppException, ErrorCode } from '../../../app.exception';
-import { DescendantLocationCheckerService } from '../../location/descendant-location-checker.service';
+import { DescendantLocationsFinderService } from '../../location/descendant-locations-finder.service';
 import { User } from '../user.schema';
 import { CurrentUser, UserType } from '../user.types';
 
@@ -11,18 +11,12 @@ import { CurrentUser, UserType } from '../user.types';
 export class UpdateUserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    private readonly descendantLocationsCheckerService: DescendantLocationCheckerService,
+    private readonly descendantLocationsFinderService: DescendantLocationsFinderService,
   ) {}
 
   async execute(currentUser: CurrentUser, id: string, user: Partial<UserType>): Promise<User> {
     if (user.locationId) {
-      const inLocationsHierarchy = await this.descendantLocationsCheckerService.execute(currentUser.locationId, user.locationId);
-      if (!inLocationsHierarchy) {
-        throw new AppException(
-          ErrorCode.LOCATION_NOT_FOUND,
-          `This location id: ${user.locationId} does not exist in your location hierarchy.`,
-        );
-      }
+      await this.checkUserLocation(currentUser.locationId, user.locationId);
     }
 
     const userExists = await this.userModel.findById(id).lean();
@@ -45,5 +39,13 @@ export class UpdateUserService {
     const updated = await this.userModel.findByIdAndUpdate(id, user, { new: true }).lean();
 
     return new User(updated!);
+  }
+
+  private async checkUserLocation(currentUserLocationId: string, locationId: string) {
+    const descendantLocations = await this.descendantLocationsFinderService.execute(currentUserLocationId);
+
+    if (!descendantLocations.includes(locationId)) {
+      throw new AppException(ErrorCode.LOCATION_NOT_FOUND, `This location id: ${locationId} does not exist in your location hierarchy.`);
+    }
   }
 }

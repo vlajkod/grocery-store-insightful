@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker/.';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { AppException, ErrorCode } from '../../../src/app.exception';
-import { DescendantLocationCheckerService } from '../../../src/modules/location/descendant-location-checker.service';
+import { DescendantLocationsFinderService } from '../../../src/modules/location/descendant-locations-finder.service';
 import { Location } from '../../../src/modules/location/location.schema';
 import { CreateUserService } from '../../../src/modules/user/services/create-user.service';
 import { User } from '../../../src/modules/user/user.schema';
@@ -10,14 +10,14 @@ import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from './
 
 describe('CreateUserService', () => {
   let createUserService: CreateUserService;
-  let descendantLocationCheckerService: DescendantLocationCheckerService;
+  let descendantLocationsFinderService: DescendantLocationsFinderService;
   let userModel: UserModel;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
         CreateUserService,
-        DescendantLocationCheckerService,
+        DescendantLocationsFinderService,
         {
           provide: getModelToken(User.name),
           useClass: UserModel,
@@ -31,7 +31,7 @@ describe('CreateUserService', () => {
 
     createUserService = moduleRef.get(CreateUserService);
 
-    descendantLocationCheckerService = moduleRef.get(DescendantLocationCheckerService);
+    descendantLocationsFinderService = moduleRef.get(DescendantLocationsFinderService);
     userModel = moduleRef.get<UserModel>(getModelToken(User.name));
   });
 
@@ -49,8 +49,8 @@ describe('CreateUserService', () => {
       const mockFindOne = jest.fn((): any => ({ lean: mockLean }));
       jest.spyOn(userModel, 'findOne').mockImplementation(mockFindOne);
 
-      const mockDescendantLocations = jest.fn(() => Promise.resolve(false));
-      jest.spyOn(descendantLocationCheckerService, 'execute').mockImplementation(mockDescendantLocations);
+      const mockDescendantLocations = jest.fn(() => Promise.resolve([]));
+      jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementation(mockDescendantLocations);
 
       await expect(() => createUserService.execute(currentUserStub, mockUser)).rejects.toThrow(
         new AppException(
@@ -59,7 +59,7 @@ describe('CreateUserService', () => {
         ),
       );
       expect(mockFindOne).not.toHaveBeenCalledWith(mockUser.email);
-      expect(mockDescendantLocations).toHaveBeenCalledWith(currentUserStub.locationId, mockUser.locationId);
+      expect(mockDescendantLocations).toHaveBeenCalledWith(currentUserStub.locationId);
     });
   });
 
@@ -76,13 +76,13 @@ describe('CreateUserService', () => {
     const mockFindOne = jest.fn((): any => ({ lean: mockLean }));
     jest.spyOn(userModel, 'findOne').mockImplementation(mockFindOne);
 
-    const mockDescendantLocations = jest.fn(() => Promise.resolve(true));
-    jest.spyOn(descendantLocationCheckerService, 'execute').mockImplementation(mockDescendantLocations);
+    const mockDescendantLocations = jest.fn(() => Promise.resolve([mockUser.locationId.toString()]));
+    jest.spyOn(descendantLocationsFinderService, 'execute').mockImplementation(mockDescendantLocations);
 
     await expect(() => createUserService.execute(currentUserStub, mockUser)).rejects.toThrow(
       new AppException(ErrorCode.USER_ALREADY_EXISTS, 'User already exists'),
     );
     expect(mockFindOne).not.toHaveBeenCalledWith(mockUser.email);
-    expect(mockDescendantLocations).toHaveBeenCalledWith(currentUserStub.locationId, mockUser.locationId);
+    expect(mockDescendantLocations).toHaveBeenCalledWith(currentUserStub.locationId);
   });
 });

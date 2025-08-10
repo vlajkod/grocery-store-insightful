@@ -29,12 +29,7 @@ export class User {
   @Prop({ type: Types.ObjectId, ref: 'Location', required: true, index: true })
   locationId: string;
 
-  constructor(
-    user: Pick<
-      User & { _id: Types.ObjectId },
-      'email' | 'name' | 'role' | 'locationId' | '_id'
-    >,
-  ) {
+  constructor(user: Pick<User & { _id: Types.ObjectId }, 'email' | 'name' | 'role' | 'locationId' | '_id'>) {
     this.email = user.email;
     this.name = user.name;
     this.role = user.role;

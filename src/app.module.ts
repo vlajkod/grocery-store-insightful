@@ -6,13 +6,7 @@ import { HealthModule } from './modules/health/health.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [
-    ConfigSetupModule,
-    AuthModule,
-    MongoSetupModule,
-    HealthModule,
-    UserModule,
-  ],
+  imports: [ConfigSetupModule, AuthModule, MongoSetupModule, HealthModule, UserModule],
   controllers: [],
   providers: [],
 })

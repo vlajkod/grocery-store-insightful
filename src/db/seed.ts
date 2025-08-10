@@ -3,9 +3,7 @@ import { LocationSchema } from '../modules/location/location.schema';
 import { UserRole, UserSchema } from '../modules/user/user.schema';
 import { locations, LocationTree } from './location-tree';
 
-const MONGO_URI =
-  process.env.MONGO_URI ||
-  'mongodb://root:example@localhost:27017/grocery-store?authSource=admin';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://root:example@localhost:27017/grocery-store?authSource=admin';
 
 async function addLocation(
   location: LocationTree,
@@ -29,10 +27,7 @@ async function addLocation(
   const createdChildren = await Promise.all(
     children.map(
       (child: LocationTree): Promise<{ location: Location; children: any[] }> =>
-        addLocation(child, locationModel, createdLocation._id, [
-          ...path,
-          createdLocation._id,
-        ]),
+        addLocation(child, locationModel, createdLocation._id, [...path, createdLocation._id]),
     ),
   );
 
@@ -47,10 +42,7 @@ async function seed() {
   await LocationModel.deleteMany({});
   await UserModel.deleteMany({});
 
-  const root = await addLocation(
-    locations,
-    LocationModel as unknown as Model<Location>,
-  );
+  const root = await addLocation(locations, LocationModel as unknown as Model<Location>);
 
   await UserModel.create([
     {

@@ -11,6 +11,7 @@ export abstract class MockModel<T> {
     this.constructorSpy(createModelData);
   }
 
+  // eslint-disable-next-line
   constructorSpy(_data: T): void {}
 
   find() {
@@ -38,6 +39,13 @@ export abstract class MockModel<T> {
 
   findByIdAndUpdate() {
     return jest.fn();
+  }
+
+  countDocuments() {
+    return {
+      exec: () => this.modelStub,
+      lean: () => this.modelStub,
+    };
   }
 }
 

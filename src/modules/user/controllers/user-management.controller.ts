@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { GetUser } from '../../../decorators/get-user.decorator';
@@ -46,15 +35,8 @@ export class UserManagementController {
   @HttpCode(HttpStatus.OK)
   @Get('all')
   @Roles(UserRole.MANAGER, UserRole.EMPLOYEE)
-  async getAllUser(
-    @GetUser() currentUser: CurrentUser,
-    @Query() query: PaginateReqDto,
-  ): Promise<PaginateResDto<UserResDto>> {
-    return this.getAllUsersService.execute(
-      currentUser,
-      query.page,
-      query.limit,
-    );
+  async getAllUser(@GetUser() currentUser: CurrentUser, @Query() query: PaginateReqDto): Promise<PaginateResDto<UserResDto>> {
+    return this.getAllUsersService.execute(currentUser, query.page, query.limit);
   }
 
   @ApiBearerAuth('access-token')
@@ -63,10 +45,7 @@ export class UserManagementController {
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.MANAGER, UserRole.EMPLOYEE)
   @Get(':id')
-  async getUser(
-    @GetUser() currentUser: CurrentUser,
-    @Param() params: IdParamDto,
-  ): Promise<UserResDto> {
+  async getUser(@GetUser() currentUser: CurrentUser, @Param() params: IdParamDto): Promise<UserResDto> {
     return this.getUserService.execute(currentUser, params.id);
   }
 
@@ -76,10 +55,7 @@ export class UserManagementController {
   @HttpCode(HttpStatus.CREATED)
   @Roles(UserRole.MANAGER)
   @Post()
-  async createUser(
-    @GetUser() currentUser: CurrentUser,
-    @Body() userDto: UserCreateDto,
-  ): Promise<Partial<UserResDto>> {
+  async createUser(@GetUser() currentUser: CurrentUser, @Body() userDto: UserCreateDto): Promise<Partial<UserResDto>> {
     return this.createUserService.execute(currentUser, userDto);
   }
 
@@ -89,11 +65,7 @@ export class UserManagementController {
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.MANAGER)
   @Put(':id')
-  async updateUser(
-    @GetUser() currentUser: CurrentUser,
-    @Param() params: IdParamDto,
-    @Body() user: UserUpdateDto,
-  ): Promise<UserResDto> {
+  async updateUser(@GetUser() currentUser: CurrentUser, @Param() params: IdParamDto, @Body() user: UserUpdateDto): Promise<UserResDto> {
     return await this.updateUserService.execute(currentUser, params.id, user);
   }
 
@@ -103,10 +75,7 @@ export class UserManagementController {
   @HttpCode(HttpStatus.OK)
   @Roles(UserRole.MANAGER)
   @Delete(':id')
-  async deleteUser(
-    @GetUser() currentUser: CurrentUser,
-    @Param() params: IdParamDto,
-  ) {
+  async deleteUser(@GetUser() currentUser: CurrentUser, @Param() params: IdParamDto) {
     return this.deleteUserService.execute(currentUser, params.id);
   }
 }

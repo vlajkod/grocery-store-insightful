@@ -18,10 +18,7 @@ export class AuthLoginService {
     const user = await this.userModel.findOne({ email }).lean();
 
     if (!user || !(await compare(password, user.password))) {
-      throw new AppException(
-        ErrorCode.INVALID_CREDENTIALS,
-        'Invalid credentials',
-      );
+      throw new AppException(ErrorCode.INVALID_CREDENTIALS, 'Invalid credentials');
     }
 
     const payload = {
