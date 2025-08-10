@@ -9,7 +9,7 @@ export class PaginateReqDto {
   @IsOptional()
   page?: number;
 
-  @ApiPropertyOptional({ default: 10, example: 10 })
+  @ApiPropertyOptional({ default: 100, example: 100 })
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
