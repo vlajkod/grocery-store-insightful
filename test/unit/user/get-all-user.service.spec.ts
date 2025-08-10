@@ -5,7 +5,7 @@ import { DescendantLocationsFinderService } from '../../../src/modules/location/
 import { Location } from '../../../src/modules/location/location.schema';
 import { GetAllUsersService } from '../../../src/modules/user/services/get-all-users.service';
 import { User, UserRole } from '../../../src/modules/user/user.schema';
-import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from './utils';
+import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from '../utils';
 
 describe('GetAllUsersService', () => {
   let getAllUsersService: GetAllUsersService;

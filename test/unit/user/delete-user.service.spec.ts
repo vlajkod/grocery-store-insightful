@@ -6,7 +6,7 @@ import { DescendantLocationsFinderService } from '../../../src/modules/location/
 import { Location } from '../../../src/modules/location/location.schema';
 import { DeleteUserService } from '../../../src/modules/user/services/delete-user.service';
 import { User } from '../../../src/modules/user/user.schema';
-import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from './utils';
+import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from '../utils';
 
 describe('DeleteUserService', () => {
   let deleteUserService: DeleteUserService;

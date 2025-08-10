@@ -6,7 +6,7 @@ import { DescendantLocationsFinderService } from '../../../src/modules/location/
 import { Location } from '../../../src/modules/location/location.schema';
 import { CreateUserService } from '../../../src/modules/user/services/create-user.service';
 import { User } from '../../../src/modules/user/user.schema';
-import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from './utils';
+import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from '../utils';
 
 describe('CreateUserService', () => {
   let createUserService: CreateUserService;

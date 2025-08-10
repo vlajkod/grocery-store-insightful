@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker/.';
 import { Model, Types } from 'mongoose';
 import { CurrentUser } from 'src/modules/user/user.types';
-import { Location } from '../../../src/modules/location/location.schema';
-import { User, UserRole } from '../../../src/modules/user/user.schema';
+import { Location } from '../../src/modules/location/location.schema';
+import { User, UserRole } from '../../src/modules/user/user.schema';
 
 export abstract class MockModel<T> {
   protected abstract readonly modelStub: T;

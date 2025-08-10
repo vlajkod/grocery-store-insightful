@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { Model, Types } from 'mongoose';
 import { DescendantLocationsFinderService } from '../../../src/modules/location/descendant-locations-finder.service';
 import { Location } from '../../../src/modules/location/location.schema';
-import { mockLocationModel } from '../user/utils';
+import { mockLocationModel } from '../utils';
 
 describe('DescendantLocationsFinderService', () => {
   let descendantLocationsFinderService: DescendantLocationsFinderService;

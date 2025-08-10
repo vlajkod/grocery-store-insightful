@@ -7,7 +7,7 @@ import { Location } from '../../../src/modules/location/location.schema';
 import { UpdateUserService } from '../../../src/modules/user/services/update-user.service';
 import { User, UserRole } from '../../../src/modules/user/user.schema';
 import { CurrentUser } from '../../../src/modules/user/user.types';
-import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from './utils';
+import { currentUserStub, mockLocationModel, mongoUserStub, UserModel } from '../utils';
 
 describe('UpdateUserService', () => {
   let updateUserService: UpdateUserService;
