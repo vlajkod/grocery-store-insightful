@@ -46,7 +46,7 @@ Grocery Store is a company that has stores in various locations in Serbia.
 ### Getting started
 1. Run command in terminal:
 ```code
-git@github.com:vlajkod/grocery-store-insightful.git
+git clone git@github.com:vlajkod/grocery-store-insightful.git
 cd grocery-store-insightful
 ```
 2. Run docker container with the mongo db instance (optional, if there is installation on local machine)
