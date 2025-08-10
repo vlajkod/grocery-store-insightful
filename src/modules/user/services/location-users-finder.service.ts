@@ -30,8 +30,7 @@ export class LocationUsersFinderService {
     };
 
     if (descendants) {
-      const descendantIds =
-        await this.descendantLocationsFinderService.execute(locationId);
+      const descendantIds = await this.descendantLocationsFinderService.execute(locationId);
       filter.locationId = {
         $in: descendantIds.map((id) => new Types.ObjectId(id)),
       };
@@ -54,20 +53,11 @@ export class LocationUsersFinderService {
     };
   }
 
-  private async checkUserLocation(
-    currentUser: CurrentUser,
-    locationId: string,
-  ): Promise<void> {
-    const descendantLocations =
-      await this.descendantLocationsFinderService.execute(
-        currentUser.locationId,
-      );
+  private async checkUserLocation(currentUser: CurrentUser, locationId: string): Promise<void> {
+    const descendantLocations = await this.descendantLocationsFinderService.execute(currentUser.locationId);
 
     if (!descendantLocations.includes(locationId)) {
-      throw new AppException(
-        ErrorCode.LOCATION_NOT_FOUND,
-        `This location id: ${locationId} does not exist in your location hierarchy.`,
-      );
+      throw new AppException(ErrorCode.LOCATION_NOT_FOUND, `This location id: ${locationId} does not exist in your location hierarchy.`);
     }
   }
 }

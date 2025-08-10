@@ -13,21 +13,12 @@ import { UserLocationController } from './controllers/user-location.controller';
 import { UserManagementController } from './controllers/user-management.controller';
 import { User, UserSchema } from './user.schema';
 
-const UserMongooseModule = MongooseModule.forFeature([
-  { name: User.name, schema: UserSchema },
-]);
+const UserMongooseModule = MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]);
 
 @Module({
   imports: [UserMongooseModule, LocationModule],
   controllers: [UserManagementController, UserLocationController],
-  providers: [
-    CreateUserService,
-    GetUserService,
-    DeleteUserService,
-    UpdateUserService,
-    GetAllUsersService,
-    LocationUsersFinderService,
-  ],
+  providers: [CreateUserService, GetUserService, DeleteUserService, UpdateUserService, GetAllUsersService, LocationUsersFinderService],
   exports: [UserMongooseModule],
 })
 export class UserModule {}

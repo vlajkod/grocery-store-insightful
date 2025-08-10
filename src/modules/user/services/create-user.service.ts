@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
-import { DescendantLocationsFinderService } from '../../location/descendant-locations-finder.service';
+import { DescendantLocationCheckerService } from '../../location/descendant-location-checker.service';
 
 import { AppException, ErrorCode } from '../../../app.exception';
 import { User } from '../user.schema';
@@ -12,18 +12,21 @@ import { CurrentUser, UserType } from '../user.types';
 export class CreateUserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    private readonly descendantLocationsFinderService: DescendantLocationsFinderService,
+    private readonly descendantLocationsCheckerService: DescendantLocationCheckerService,
   ) {}
 
   async execute(currentUser: CurrentUser, user: UserType): Promise<User> {
-    await this.checkUserLocation(currentUser.locationId, user.locationId);
-
-    const userExists = await this.userModel.findOne({ email: user.email });
-    if (userExists) {
+    const inLocationsHierarchy = await this.descendantLocationsCheckerService.execute(currentUser.locationId, user.locationId);
+    if (!inLocationsHierarchy) {
       throw new AppException(
-        ErrorCode.USER_ALREADY_EXISTS,
-        'User already exists',
+        ErrorCode.LOCATION_NOT_FOUND,
+        `This location id: ${user.locationId} does not exist in your location hierarchy.`,
       );
+    }
+
+    const userExists = await this.userModel.findOne({ email: user.email }).lean();
+    if (userExists) {
+      throw new AppException(ErrorCode.USER_ALREADY_EXISTS, 'User already exists');
     }
 
     const createdUser = new this.userModel({
@@ -32,22 +35,5 @@ export class CreateUserService {
     });
     await createdUser.save();
     return new User(createdUser);
-  }
-
-  private async checkUserLocation(
-    currentUserLocationId: string,
-    locationId: string,
-  ) {
-    const descendantLocations =
-      await this.descendantLocationsFinderService.execute(
-        currentUserLocationId,
-      );
-
-    if (!descendantLocations.includes(locationId)) {
-      throw new AppException(
-        ErrorCode.LOCATION_NOT_FOUND,
-        `This location id: ${locationId} does not exist in your location hierarchy.`,
-      );
-    }
   }
 }
