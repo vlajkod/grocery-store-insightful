@@ -81,7 +81,7 @@ export const locations: LocationTree = {
           children: [
             {
               name: 'Bezanija',
-              type: LocationType.STORE,
+              type: LocationType.OFFICE,
               children: [{ name: 'Radnja 6', type: LocationType.STORE, children: [] }],
             },
           ],
