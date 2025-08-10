@@ -27,6 +27,9 @@ Grocery Store is a company that has stores in various locations in Serbia.
 - [TypeScript](https://www.typescriptlang.org/): programming language.
 - [npm](https://www.npmjs.com/): package manager.
 - [Jest](https://jestjs.io/): testing library.
+- [Mongo](https://www.mongodb.com/) MongoDB database
+- [Mongoose](ttps://mongoosejs.com/) Object modeling for Node.js
+- [Docker](https://www.docker.com/) Official site
 
 ## 📜 Swagger
 
